@@ -10,7 +10,7 @@ class Timestamp(models.Model):
 
 
 class ActualCurrencyInfo(Timestamp):
-    bank = models.CharField(max_length=15, verbose_name="Bank name")
+    bank = models.CharField(max_length=255, verbose_name="Bank name")
     city = models.CharField(max_length=7, verbose_name="Regional city")
     usd_buy = models.DecimalField(max_digits=4, decimal_places=3, verbose_name="Buy USD", null=True)
     usd_sell = models.DecimalField(max_digits=4, decimal_places=3, verbose_name="Sale USD", null=True)
