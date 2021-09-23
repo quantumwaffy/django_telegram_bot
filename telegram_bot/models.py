@@ -28,3 +28,31 @@ class ActualCurrencyInfo(Timestamp):
 
     def __str__(self):
         return f"{self.city}_{self.bank}"
+
+
+class TelegramUser(Timestamp):
+    telegram_id = models.PositiveIntegerField(verbose_name="User telegram ID")
+    first_name = models.CharField(max_length=255, verbose_name="First name", null=True)
+    last_name = models.CharField(max_length=255, verbose_name="Last name", null=True)
+    username = models.CharField(max_length=255, verbose_name="Username", null=True)
+
+    class Meta:
+        verbose_name = "Telegram user"
+        verbose_name_plural = "Telegram users"
+
+    def __str__(self):
+        return f"#{self.telegram_id}"
+
+
+class Message(Timestamp):
+    telegram_user = models.ForeignKey(
+        TelegramUser, on_delete=models.PROTECT, related_name="messages", verbose_name="User message"
+    )
+    text = models.TextField(verbose_name="Message text")
+
+    class Meta:
+        verbose_name = "User's message"
+        verbose_name_plural = "User's messages"
+
+    def __str__(self):
+        return self.text
