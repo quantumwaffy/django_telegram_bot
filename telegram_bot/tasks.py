@@ -23,8 +23,8 @@ PROPOSAL = (
     ("euro_sell", "best_euro_sell"),
     ("rub_buy", "best_rub_buy"),
     ("rub_sell", "best_rub_sell"),
-    ("usd_buy_from euro", "best_usd_buy_from euro"),
-    ("usd_sell_from euro", "best_usd_sell_from euro"),
+    ("usd_buy_from euro", "best_usd_buy_from_euro"),
+    ("usd_sell_from euro", "best_usd_sell_from_euro"),
 )
 SOURCE = "https://myfin.by/currency/"
 
