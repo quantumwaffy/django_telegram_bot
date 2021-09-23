@@ -7,6 +7,7 @@ from celery import chain
 
 from django_telegrambot import settings
 from django_telegrambot.celery import app
+from telegram_bot.models import ActualCurrencyInfo
 
 CITIES = {
     "1": ("minsk", "Минск"),
@@ -16,16 +17,7 @@ CITIES = {
     "5": ("grodno", "Гродно"),
     "6": ("mogilev", "Могилев"),
 }
-PROPOSAL = (
-    ("usd_buy", "best_usd_buy"),
-    ("usd_sell", "best_usd_sell"),
-    ("euro_buy", "best_euro_buy"),
-    ("euro_sell", "best_euro_sell"),
-    ("rub_buy", "best_rub_buy"),
-    ("rub_sell", "best_rub_sell"),
-    ("usd_buy_from euro", "best_usd_buy_from_euro"),
-    ("usd_sell_from euro", "best_usd_sell_from_euro"),
-)
+
 SOURCE = "https://myfin.by/currency/"
 
 
@@ -42,42 +34,50 @@ def updating_cache_files():
     for name in CITIES.values():
         url = SOURCE + name[0]
         file = os.path.join(settings.CURRENCY_CACHE_PATH, f"temporary_{name[0]}.html")
-        response = requests.get(url, headers={"User-agent": "your bot 0.1"})
+        response = requests.get(url, headers={"User-agent": "your bot 0.2"})
         print(f"Response status: {response.status_code}")
+        if response.status_code == 429:
+            app.control.revoke(updating_cache_files.request.id)
         with open(file, "w") as f:
             f.write(response.text)
-        sleep(1)
+        sleep(30)
 
 
 @app.task
 def parsing_data(*args):
-    dict_currency = {}
-    dict_best_currency = {}
+    cities = list(map(lambda elem: elem[0], CITIES.values()))
+    fields = [f.name for f in ActualCurrencyInfo._meta.fields][5:]
+    objects = []
     for file in os.listdir(settings.CURRENCY_CACHE_PATH):
         with open(os.path.join(settings.CURRENCY_CACHE_PATH, file)) as f:
             html = f.read()
+        try:
+            city = list(filter(lambda elem: elem in file, cities))[0]
+        except IndexError:
+            city = "Unknown_city"
         soup = BeautifulSoup(html, "lxml")
         table_currency = soup.find("tbody", {"id": "currency_tbody"})
         banks = table_currency.findAll("tr")
-        bank_name = ""
         for bank in banks:
+            data = {}
             if bank.has_attr("data-bank_id"):
                 counter = 0
                 for td in bank:
                     if not isinstance(td, NavigableString):
                         if td.find("span"):
                             bank_name = td.find("span").get_text()
-                            dict_currency[bank_name] = {}
-                            dict_best_currency[bank_name] = {}
+                            data["city"] = city
+                            data["bank"] = bank_name
                             continue
-                        if not dict_currency[bank_name].get(PROPOSAL[counter][0]):
-                            dict_currency[bank_name].update({PROPOSAL[counter][0]: td.get_text()})
-                            if td.has_attr("class") and td.attrs["class"][0] == "best":
-                                dict_best_currency[bank_name].update({PROPOSAL[counter][1]: td.get_text()})
-                            counter += 1
-                            continue
-    dict_best_currency = {bank: currencies for bank, currencies in dict_best_currency.items() if currencies}
-    return [dict_currency, dict_best_currency]
+                        data[fields[counter]] = td.get_text() if td.get_text() != "-" else None
+                        counter += 1
+                objects.append(ActualCurrencyInfo(**data))
+
+    if ActualCurrencyInfo.objects.exists():
+        ActualCurrencyInfo.objects.all().delete()
+        os.system("python manage.py sqlsequencereset telegram_bot| psql telegram_bot")
+    ActualCurrencyInfo.objects.bulk_create(objects)
+    return len(objects)
 
 
 @app.task
