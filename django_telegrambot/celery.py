@@ -18,7 +18,7 @@ app.conf.task_routes = {
 app.conf.enable_utc = False
 
 app.conf.beat_schedule = {
-    "upload_currencies": {"task": "telegram_bot.tasks.update_cache_files", "schedule": crontab(minute="*/15")},
+    "upload_currencies": {"task": "telegram_bot.tasks.updating_and_parsing_data", "schedule": crontab(minute="*/15")},
 }
 app.autodiscover_tasks(settings.INSTALLED_APPS)
 
