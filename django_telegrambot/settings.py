@@ -76,6 +76,8 @@ WSGI_APPLICATION = "django_telegrambot.wsgi.application"
 
 DATABASES = "Your database settings"
 CELERY_BROKER = "Your broker"
+PYOWM_TOKEN = "Your pyowm token"
+TELEGRAM_TOKEN = "Your telegram token"
 
 
 CURRENCY_CACHE_PATH = os.path.join(BASE_DIR, "CACHE_CURRENCY")
