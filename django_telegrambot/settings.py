@@ -12,20 +12,23 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
+from environ import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+env = environ.Env()
+environ.Env.read_env()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "Your_secret_key"
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -74,10 +77,19 @@ WSGI_APPLICATION = "django_telegrambot.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = "Your database settings"
-CELERY_BROKER = "Your broker"
-PYOWM_TOKEN = "Your pyowm token"
-TELEGRAM_TOKEN = "Your telegram token"
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": env("DATABASE_NAME"),
+        "USER": env("DATABASE_USER"),
+        "PASSWORD": env("DATABASE_PASSWORD"),
+        "HOST": env("DATABASE_HOST"),
+        "PORT": env("DATABASE_PORT"),
+    }
+}
+
+PYOWM_TOKEN = env("PYOWM_TOKEN")
+TELEGRAM_TOKEN = env("TELEGRAM_TOKEN")
 
 
 CURRENCY_CACHE_PATH = os.path.join(BASE_DIR, "CACHE_CURRENCY")
@@ -129,9 +141,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = "/media/"
-
-if DEBUG:
-    try:
-        from .local_settings import *
-    except ImportError:
-        pass

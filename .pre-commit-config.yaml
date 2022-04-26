@@ -1,10 +1,9 @@
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
 repos:
-#  - repo: https://github.com/ecugol/pre-commit-hooks-django
-#    rev: v0.3.0
-#    hooks:
-#      - id: check-untracked-migrations
+  - repo: https://github.com/ecugol/pre-commit-hooks-django
+    rev: v0.4.0
+    hooks:
+      - id: check-untracked-migrations
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
@@ -14,54 +13,72 @@ repos:
       - id: end-of-file-fixer
         types:
           - python
+
   - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
       - id: autoflake
-        exclude: 'migrations|django_telegrambot/settings.py'
+        exclude: 'migrations'
         args: [--in-place, --remove-all-unused-imports, --remove-duplicate-keys, --expand-star-imports]
+
   - repo: https://github.com/PyCQA/isort
-    rev: 5.8.0
+    rev: 5.9.3
     hooks:
       - id: isort
         exclude: 'migrations'
         args:
           - --profile=black
           - --line-length=120
+
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.19.0
+    rev: v2.29.0
     hooks:
       - id: pyupgrade
         exclude: 'migrations'
         args:
-          - --py36-plus
+          - --py39-plus
 
   - repo: https://github.com/psf/black
-    rev: 21.5b1 # Replace by any tag/version: https://github.com/psf/black/tags
+    rev: 21.9b0
     hooks:
       - id: black
-        language_version: py3.9 # Should be a command that runs python3.6+
+        language_version: py3.9
         exclude: ".*/migrations/.*"
+        additional_dependencies: ['click==8.0.4'] # Убрать после того как click пофиксят баг в 8.1
         args:
           - --line-length=120
+
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
     hooks:
       - id: flake8
-        exclude: 'migrations|django_telegrambot/settings.py'
+        exclude: 'migrations'
         additional_dependencies:
           - flake8-bugbear
-#          - flake8-django
+          - flake8-django
           - flake8-comprehensions
-          - flake8-simplify
+          - "flake8-simplify==0.14.1"
         args:
           - --max-line-length=120
-#          - --select=E, F, W, C90  flake8 default
-          - --extend-ignore=E203, W503, F405, B009, B010, B015, SIM105, SIM106, SIM119
-#  - repo: https://github.com/thibaudcolas/curlylint
-#    rev: v0.13.0
-#    hooks:
-#      - id: curlylint
-#        args:
-#          - templates/
-#        files: 'templates/.*'
+          - --extend-ignore=E203, W503, F405, SIM104, SIM106, SIM119, F821
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v2.20.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  - repo: https://github.com/thibaudcolas/curlylint
+    rev: v0.13.0
+    hooks:
+      - id: curlylint
+        additional_dependencies: ['click==8.0.4'] # Убрать после того как click пофиксят баг в 8.1
+        files: 'templates/'
+
+  - repo: https://github.com/rtts/djhtml
+    rev: 'v1.4.9'
+    hooks:
+      - id: djhtml
+        args:
+        - --tabwidth=2
+        files: 'templates/'

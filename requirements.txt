@@ -37,3 +37,4 @@ virtualenv==20.8.0
 wcwidth==0.2.5
 pyowm==3.2.0
 pyTelegramBotAPI==4.0.1
+django-environ==0.8.1
