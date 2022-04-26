@@ -56,3 +56,18 @@ class Message(Timestamp):
 
     def __str__(self):
         return self.text
+
+
+class TelegramUserSettings(Timestamp):
+    telegram_user = models.OneToOneField(
+        TelegramUser, related_query_name="settings", verbose_name="User settings", on_delete=models.CASCADE
+    )
+    is_beat_weather = models.BooleanField(verbose_name="Beat sending weather info", default=True)
+    is_beat_currency = models.BooleanField(verbose_name="Beat sending currency info", default=True)
+
+    class Meta:
+        verbose_name = "User settings"
+        verbose_name_plural = "User's settings"
+
+    def __str__(self):
+        return f"{self.telegram_user} {self.__class__.__name__}"

@@ -11,7 +11,7 @@ class UserLoger:
     @staticmethod
     def _update_or_create_user(update: Update):
         user: User = update.effective_user
-        obj, _ = models.TelegramUser.objects.update_or_create(
+        obj, created = models.TelegramUser.objects.update_or_create(
             telegram_id=user.id,
             defaults={
                 "telegram_id": user.id,
@@ -21,6 +21,7 @@ class UserLoger:
             },
         )
         models.Message.objects.create(telegram_user=obj, text=update.effective_message.text)
+        models.TelegramUserSettings.objects.create(telegram_user=obj) if created else None
 
 
 def return_bot_message(func):
