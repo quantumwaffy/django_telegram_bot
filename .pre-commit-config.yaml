@@ -42,9 +42,9 @@ repos:
     rev: 21.9b0
     hooks:
       - id: black
-        language_version: py3.9
+        language_version: py3.10
         exclude: ".*/migrations/.*"
-        additional_dependencies: ['click==8.0.4'] # Убрать после того как click пофиксят баг в 8.1
+        additional_dependencies: ['click==8.0.4'] # remove after fix in 8.1
         args:
           - --line-length=120
 
@@ -72,7 +72,7 @@ repos:
     rev: v0.13.0
     hooks:
       - id: curlylint
-        additional_dependencies: ['click==8.0.4'] # Убрать после того как click пофиксят баг в 8.1
+        additional_dependencies: ['click==8.0.4'] # remove after fix in 8.1
         files: 'templates/'
 
   - repo: https://github.com/rtts/djhtml

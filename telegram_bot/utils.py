@@ -1,8 +1,6 @@
 import functools
 
-import telegram
-from telebot.types import User
-from telegram import Update
+from telegram import Update, User
 from telegram.ext import CallbackContext
 
 from . import models
@@ -11,9 +9,9 @@ from .instance import bot_instance
 
 class UserLoger:
     @staticmethod
-    def _update_or_create_user(update: telegram.Update):
+    def _update_or_create_user(update: Update):
         user: User = update.effective_user
-        models.TelegramUser.objects.update_or_create(
+        obj, _ = models.TelegramUser.objects.update_or_create(
             telegram_id=user.id,
             defaults={
                 "telegram_id": user.id,
@@ -22,6 +20,7 @@ class UserLoger:
                 "username": user.username,
             },
         )
+        models.Message.objects.create(telegram_user=obj, text=update.effective_message.text)
 
 
 def return_bot_message(func):

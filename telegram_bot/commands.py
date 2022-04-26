@@ -1,15 +1,24 @@
+import os
+
 from pyowm.commons.exceptions import APIResponseError
 from telegram import Update
 from telegram.ext import CallbackContext
 
-from .instance import owm_instance
+from django_telegrambot.settings import STATICFILES_DIRS
+
+from .instance import bot_instance, owm_instance
 from .utils import return_bot_message
 
 
 @return_bot_message
 def command_start(update: Update, context: CallbackContext):
     user = update.effective_user
-    return f"Hi, {user.username or user.first_name or user.last_name or  f'Anonymous_#{user.id}'}"
+    with open(os.path.join(STATICFILES_DIRS[0], "images", "AnimatedSticker.tgs"), "rb") as f:
+        bot_instance.send_sticker(update.effective_message.chat_id, f)
+    return (
+        f"Hi, {user.username or user.first_name or user.last_name or  f'Anonymous_#{user.id}'}.\n"
+        f"For check weather for some city you can send message like: W <your_city>"
+    )
 
 
 @return_bot_message

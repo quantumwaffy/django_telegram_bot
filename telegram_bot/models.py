@@ -32,9 +32,9 @@ class ActualCurrencyInfo(Timestamp):
 
 class TelegramUser(Timestamp):
     telegram_id = models.CharField(max_length=255, verbose_name="User telegram ID")
-    first_name = models.CharField(max_length=255, verbose_name="First name", null=True)
-    last_name = models.CharField(max_length=255, verbose_name="Last name", null=True)
-    username = models.CharField(max_length=255, verbose_name="Username", null=True)
+    first_name = models.CharField(max_length=255, verbose_name="First name", null=True)  # noqa
+    last_name = models.CharField(max_length=255, verbose_name="Last name", null=True)  # noqa
+    username = models.CharField(max_length=255, verbose_name="Username", null=True)  # noqa
 
     class Meta:
         verbose_name = "Telegram user"
