@@ -9,7 +9,7 @@ from .utils import return_bot_message
 @return_bot_message
 def command_start(update: Update, context: CallbackContext):
     user = update.effective_user
-    return f"Hi, {user.username or f'Anonymous_#{user.id}'}"
+    return f"Hi, {user.username or user.first_name or user.last_name or  f'Anonymous_#{user.id}'}"
 
 
 @return_bot_message
