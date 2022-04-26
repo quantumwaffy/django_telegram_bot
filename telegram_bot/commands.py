@@ -18,9 +18,9 @@ def command_start(update: Update, context: CallbackContext):
         bot_instance.send_sticker(update.effective_message.chat_id, f)
     return (
         f"Hi, {user.username or user.first_name or user.last_name or  f'Anonymous_#{user.id}'}.\n"
-        f"For morning notifications about weather you can set your location like: L <your_city> "
+        f"For morning notifications about weather you can set your location like:\nL <your_city> "
         f"(default: {consts.WeatherResponses.DEFAULT_CITY.value}).\n"
-        f"For check weather for some city you can send message like: W <your_city>"
+        f"For check weather for some city you can send message like:\nW <your_city>"
     )
 
 
