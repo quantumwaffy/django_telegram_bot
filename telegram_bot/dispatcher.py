@@ -7,7 +7,8 @@ from .instance import bot_instance
 
 def setup_dispatcher(dispatcher):
     dispatcher.add_handler(CommandHandler("start", commands.command_start))
-    dispatcher.add_handler(MessageHandler(Filters.regex(r"^W\s\w*"), commands.weather))
+    dispatcher.add_handler(MessageHandler(Filters.regex(r"^W\s\w*"), commands.get_weather))
+    dispatcher.add_handler(MessageHandler(Filters.regex(r"^L\s\w*"), commands.set_location))
     return dispatcher
 
 

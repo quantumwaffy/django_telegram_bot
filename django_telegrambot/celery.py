@@ -15,10 +15,15 @@ app.conf.task_routes = {
     "telegram_bot.tasks.*": {"queue": "django_telegrambot", "routing_key": "django_telegrambot"},
 }
 
-app.conf.enable_utc = False
+app.conf.timezone = "Europe/Minsk"
+app.conf.update(BROKER_URL=settings.BROKER_URL)
+
+# app.conf.beat_schedule = {
+#     "upload_currencies": {"task": "telegram_bot.tasks.updating_and_parsing_data", "schedule": crontab(minute="*/15")},
+# }
 
 app.conf.beat_schedule = {
-    "upload_currencies": {"task": "telegram_bot.tasks.updating_and_parsing_data", "schedule": crontab(minute="*/15")},
+    "morning_weather": {"task": "telegram_bot.tasks.send_morning_weather", "schedule": crontab(hour=7, minute=15)},
 }
 app.autodiscover_tasks(settings.INSTALLED_APPS)
 

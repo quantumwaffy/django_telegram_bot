@@ -2,7 +2,7 @@ from kombu import Exchange, Queue
 
 from . import settings
 
-broker_url = settings.CELERY_BROKER
+broker_url = settings.BROKER_URL
 
 task_default_queue = "django_telegrambot"
 

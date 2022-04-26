@@ -35,6 +35,7 @@ class TelegramUser(Timestamp):
     first_name = models.CharField(max_length=255, verbose_name="First name", null=True)  # noqa
     last_name = models.CharField(max_length=255, verbose_name="Last name", null=True)  # noqa
     username = models.CharField(max_length=255, verbose_name="Username", null=True)  # noqa
+    city_location = models.CharField(max_length=50, verbose_name="City location", null=True)  # noqa
 
     class Meta:
         verbose_name = "Telegram user"
@@ -60,7 +61,7 @@ class Message(Timestamp):
 
 class TelegramUserSettings(Timestamp):
     telegram_user = models.OneToOneField(
-        TelegramUser, related_query_name="settings", verbose_name="User settings", on_delete=models.CASCADE
+        TelegramUser, related_name="settings", verbose_name="User settings", on_delete=models.CASCADE
     )
     is_beat_weather = models.BooleanField(verbose_name="Beat sending weather info", default=True)
     is_beat_currency = models.BooleanField(verbose_name="Beat sending currency info", default=True)

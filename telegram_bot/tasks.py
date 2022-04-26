@@ -4,10 +4,15 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup, NavigableString
 from celery import chain
+from django.db.models import QuerySet
 
 from django_telegrambot import settings
 from django_telegrambot.celery import app
-from telegram_bot.models import ActualCurrencyInfo
+from telegram_bot.models import ActualCurrencyInfo, TelegramUser
+from telegram_bot.utils import get_weather_message
+
+from . import consts
+from .instance import bot_instance
 
 CITIES = {
     "1": ("minsk", "Минск"),
@@ -84,3 +89,12 @@ def parsing_data(*args):
 def updating_and_parsing_data():
     chain_tasks = chain(updating_cache_files.s(), parsing_data.s())
     chain_tasks()
+
+
+@app.task
+def send_morning_weather():
+    users_info: QuerySet = TelegramUser.objects.filter(settings__is_beat_weather=True).values_list(
+        "telegram_id", "city_location"
+    )
+    for user_id, city in users_info:
+        bot_instance.send_message(user_id, get_weather_message(city or consts.WeatherResponses.DEFAULT_CITY.value))
