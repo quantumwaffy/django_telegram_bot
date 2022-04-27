@@ -42,7 +42,7 @@ repos:
     rev: 21.9b0
     hooks:
       - id: black
-        language_version: py3.9
+        language_version: py3.10
         exclude: ".*/migrations/.*"
         additional_dependencies: ['click==8.0.4'] # remove after fix in 8.1
         args:

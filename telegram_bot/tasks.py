@@ -28,7 +28,7 @@ def updating_cache_files():
             os.listdir(settings.CURRENCY_CACHE_PATH),
         )
 
-    for name in consts.CityCallbackChoices.values:
+    for name in consts.CityCallbackChoices.labels:
         file = os.path.join(settings.CURRENCY_CACHE_PATH, f"temporary_{name}.html")
         response = requests.get(SOURCE + name, headers={"User-agent": "your bot 0.2"})
         print(f"Response status: {response.status_code}")
@@ -47,7 +47,7 @@ def parsing_data(*args):
         with open(os.path.join(settings.CURRENCY_CACHE_PATH, file)) as f:
             html = f.read()
         try:
-            city = list(filter(lambda elem: elem in file, consts.CityCallbackChoices.values))[0]
+            city = list(filter(lambda elem: elem in file, consts.CityCallbackChoices.labels))[0]
         except IndexError:
             city = "Unknown_city"
         soup = BeautifulSoup(html, "lxml")
