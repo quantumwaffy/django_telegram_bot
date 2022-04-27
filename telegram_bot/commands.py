@@ -1,6 +1,6 @@
 import os
 
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 from django_telegrambot.settings import STATICFILES_DIRS
@@ -43,3 +43,27 @@ def set_location(update: Update, context: CallbackContext):
     user.city_location = city
     user.save()
     return consts.BaseMessageResponses.SUCCESS.value
+
+
+def command_exchange(update: Update, context: CallbackContext):
+    city_data = consts.CityCallbackChoices.choices
+    city_data_half_len = round(len(city_data) / 2)
+    keyboard = [
+        [InlineKeyboardButton(label, callback_data=callback) for label, callback in city_data[part]]
+        for part in [slice(city_data_half_len), slice(city_data_half_len, None)]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text("Please choose city:", reply_markup=reply_markup)
+
+
+def city_callback(update: Update, context: CallbackContext):
+    ...
+
+
+class CurrencyRateProcessor:
+    update: Update
+    context: CallbackContext
+
+    def __call__(self, *args, **kwargs):
+        self.update, self.context = args
+        return 1

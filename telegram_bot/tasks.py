@@ -15,15 +15,6 @@ from telegram_bot.utils import get_weather_message
 from . import consts
 from .instance import bot_instance
 
-CITIES = {
-    "1": ("minsk", "Минск"),
-    "2": ("brest", "Брест"),
-    "3": ("vitebsk", "Витебск"),
-    "4": ("gomel", "Гомель"),
-    "5": ("grodno", "Гродно"),
-    "6": ("mogilev", "Могилев"),
-}
-
 SOURCE = "https://myfin.by/currency-old/"
 
 
@@ -37,10 +28,9 @@ def updating_cache_files():
             os.listdir(settings.CURRENCY_CACHE_PATH),
         )
 
-    for name in CITIES.values():
-        url = SOURCE + name[0]
-        file = os.path.join(settings.CURRENCY_CACHE_PATH, f"temporary_{name[0]}.html")
-        response = requests.get(url, headers={"User-agent": "your bot 0.2"})
+    for name in consts.CityCallbackChoices.values:
+        file = os.path.join(settings.CURRENCY_CACHE_PATH, f"temporary_{name}.html")
+        response = requests.get(SOURCE + name, headers={"User-agent": "your bot 0.2"})
         print(f"Response status: {response.status_code}")
         if response.status_code == 429:
             app.control.revoke(updating_cache_files.request.id)
@@ -51,14 +41,13 @@ def updating_cache_files():
 
 @app.task
 def parsing_data(*args):
-    cities = list(map(lambda elem: elem[0], CITIES.values()))
     fields = [f.name for f in ActualCurrencyInfo._meta.fields][5:]
     objects = []
     for file in os.listdir(settings.CURRENCY_CACHE_PATH):
         with open(os.path.join(settings.CURRENCY_CACHE_PATH, file)) as f:
             html = f.read()
         try:
-            city = list(filter(lambda elem: elem in file, cities))[0]
+            city = list(filter(lambda elem: elem in file, consts.CityCallbackChoices.values))[0]
         except IndexError:
             city = "Unknown_city"
         soup = BeautifulSoup(html, "lxml")
