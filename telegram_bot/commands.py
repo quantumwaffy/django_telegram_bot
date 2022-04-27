@@ -96,7 +96,13 @@ class CurrencyRateProcessor:
         else:
             aggregate_func = Min(self.filter_field)
             aggregated_key = f"{self.filter_field}__min"
-        filter_params.update({self.filter_field: self.model.objects.aggregate(aggregate_func).get(aggregated_key)})
+        filter_params.update(
+            {
+                self.filter_field: self.model.objects.filter(**filter_params)
+                .aggregate(aggregate_func)
+                .get(aggregated_key)
+            }
+        )
         return self.model.objects.filter(**filter_params).values_list("bank", "usd_buy")
 
     def _make_response_message(self):
