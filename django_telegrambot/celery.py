@@ -18,10 +18,6 @@ app.conf.task_routes = {
 app.conf.timezone = "Europe/Minsk"
 app.conf.update(BROKER_URL=settings.BROKER_URL)
 
-# app.conf.beat_schedule = {
-#     ,
-# }
-
 app.conf.beat_schedule = {
     "morning_weather": {"task": "telegram_bot.tasks.send_morning_weather", "schedule": crontab(hour=7, minute=15)},
     "upload_currencies": {
