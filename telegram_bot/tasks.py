@@ -4,6 +4,7 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup, NavigableString
 from celery import chain
+from django.db import connection
 from django.db.models import QuerySet
 
 from django_telegrambot import settings
@@ -23,7 +24,7 @@ CITIES = {
     "6": ("mogilev", "Могилев"),
 }
 
-SOURCE = "https://myfin.by/currency/"
+SOURCE = "https://myfin.by/currency-old/"
 
 
 @app.task
@@ -78,9 +79,12 @@ def parsing_data(*args):
                         counter += 1
                 objects.append(ActualCurrencyInfo(**data))
 
-    if ActualCurrencyInfo.objects.exists():
-        ActualCurrencyInfo.objects.all().delete()
-        os.system("python manage.py sqlsequencereset telegram_bot| psql telegram_bot")
+    ActualCurrencyInfo.objects.all().delete()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT setval('telegram_bot_actualcurrencyinfo_id_seq', 1);
+                        UPDATE telegram_bot_actualcurrencyinfo SET id = DEFAULT;"""
+        )
     ActualCurrencyInfo.objects.bulk_create(objects)
     return len(objects)
 
