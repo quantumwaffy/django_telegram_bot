@@ -1,4 +1,5 @@
 import os
+from shutil import rmtree
 from time import sleep
 
 import requests
@@ -20,13 +21,8 @@ SOURCE = "https://myfin.by/currency-old/"
 
 @app.task
 def updating_cache_files():
-    os.mkdir(settings.CURRENCY_CACHE_PATH) if not os.path.exists(settings.CURRENCY_CACHE_PATH) else None
-    cache_files = os.listdir(settings.CURRENCY_CACHE_PATH)
-    if cache_files:
-        map(
-            lambda file_to_remove: os.remove(os.path.join(settings.CURRENCY_CACHE_PATH, file_to_remove)),
-            os.listdir(settings.CURRENCY_CACHE_PATH),
-        )
+    rmtree(settings.CURRENCY_CACHE_PATH, ignore_errors=True)
+    os.mkdir(settings.CURRENCY_CACHE_PATH)
 
     for name in consts.CityCallbackChoices.labels:
         file = os.path.join(settings.CURRENCY_CACHE_PATH, f"temporary_{name}.html")
