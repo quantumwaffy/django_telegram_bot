@@ -32,7 +32,7 @@ def updating_cache_files():
             app.control.revoke(updating_cache_files.request.id)
         with open(file, "w") as f:
             f.write(response.text)
-        sleep(30)
+        sleep(10)
 
 
 @app.task
