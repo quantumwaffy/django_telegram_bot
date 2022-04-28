@@ -103,7 +103,7 @@ class CurrencyRateProcessor:
                 .get(aggregated_key)
             }
         )
-        return self.model.objects.filter(**filter_params).values_list("bank", "usd_buy")
+        return self.model.objects.filter(**filter_params).values_list("bank", self.filter_field)
 
     def _make_response_message(self):
         message = f"<b>{self.city} - {self.info_type}\n</b>"
