@@ -49,7 +49,8 @@ def set_location(update: Update, context: CallbackContext):
 
 def command_exchange(update: Update, context: CallbackContext):
     buttons = [
-        InlineKeyboardButton(label, callback_data=callback) for callback, label in consts.CityCallbackChoices.choices
+        InlineKeyboardButton(label.capitalize(), callback_data=callback)
+        for callback, label in consts.CityCallbackChoices.choices
     ]
     keyboard = [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
     update.message.reply_text("Please choose city:", reply_markup=InlineKeyboardMarkup(keyboard))
@@ -106,7 +107,7 @@ class CurrencyRateProcessor:
         return self.model.objects.filter(**filter_params).values_list("bank", self.filter_field)
 
     def _make_response_message(self):
-        message = f"<b>{self.city} - {self.info_type}\n</b>"
+        message = f"<b>{self.city.capitalize()} - {self.info_type}\n</b>"
         for bank, exchange_value in self._get_object_list():
             message += f"{bank}: <i>{exchange_value}</i>\n"
         return message.strip("\n")
