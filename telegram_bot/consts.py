@@ -11,6 +11,7 @@ class BaseMessageResponses(Enum):
 class WeatherResponses(Enum):
     DEFAULT_CITY = "Minsk"
     ERROR = "There is no such city"
+    NO_CHOICE = "Not selected city"
 
 
 class CurrencyCallbackChoices(TextChoices):

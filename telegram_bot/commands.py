@@ -28,15 +28,20 @@ def command_start(update: Update, context: CallbackContext):
 
 @return_bot_message
 def get_weather(update: Update, context: CallbackContext):
-    city: str = update.effective_message.text.split("W ")[-1].strip()
+    try:
+        city: str = context.args[0].strip()
+    except IndexError:
+        return consts.WeatherResponses.NO_CHOICE.value
     return get_weather_message(city)
 
 
 @return_bot_message
 def set_location(update: Update, context: CallbackContext):
-    city: str = update.effective_message.text.split("L ")[-1].strip()
-    is_city_exists = bool(check_weather(city))
-    if not is_city_exists:
+    try:
+        city: str = context.args[0].strip()
+    except IndexError:
+        return consts.WeatherResponses.NO_CHOICE.value
+    if not check_weather(city):
         return consts.WeatherResponses.ERROR.value
     try:
         user = TelegramUser.objects.get(telegram_id=update.effective_user.id)
