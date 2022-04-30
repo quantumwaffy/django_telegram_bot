@@ -25,13 +25,17 @@ class UserLoger:
         models.TelegramUserSettings.objects.create(telegram_user=obj) if created else None
 
 
-def return_bot_message(func):
-    @functools.wraps(func)
-    def wrapper(update: Update, context: CallbackContext):
-        res = func(update, context)
-        return bot_instance.send_message(update.effective_message.chat_id, res)
+# Takes args and kwargs for bot method send_message
+def return_bot_message(*args, **kwargs):
+    def inner(func):
+        @functools.wraps(func)
+        def wrapper(update: Update, context: CallbackContext):
+            res = func(update, context)
+            return bot_instance.send_message(update.effective_message.chat_id, res, *args, **kwargs)
 
-    return wrapper
+        return wrapper
+
+    return inner
 
 
 def check_weather(city: str) -> dict:

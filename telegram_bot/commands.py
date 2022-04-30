@@ -13,20 +13,20 @@ from .models import ActualCurrencyInfo, TelegramUser
 from .utils import check_weather, get_weather_message, return_bot_message
 
 
-@return_bot_message
+@return_bot_message(parse_mode="html")
 def command_start(update: Update, context: CallbackContext):
     user = update.effective_user
     with open(os.path.join(STATICFILES_DIRS[0], "images", "AnimatedSticker.tgs"), "rb") as f:
         bot_instance.send_sticker(update.effective_message.chat_id, f)
     return (
-        f"Hi, {user.username or user.first_name or user.last_name or  f'Anonymous_#{user.id}'}.\n"
-        f"For morning notifications about weather you can set your location like:\nL <your_city> "
-        f"(default: {consts.WeatherResponses.DEFAULT_CITY.value}).\n"
-        f"For check weather for some city you can send message like:\nW <your_city>"
+        f"Hi, <b>{user.first_name or user.username or user.last_name or  f'Anonymous_#{user.id}'}</b>!\n"
+        f"For morning notifications about weather you can set your location (default: "
+        f"{consts.WeatherResponses.DEFAULT_CITY.value}) like:\n<i>/save_city YOUR_CITY</i>\n"
+        f"For check weather for some city you can send message like:\n<i>/weather YOUR_CITY</i>"
     )
 
 
-@return_bot_message
+@return_bot_message()
 def get_weather(update: Update, context: CallbackContext):
     try:
         city: str = context.args[0].strip()
@@ -35,7 +35,7 @@ def get_weather(update: Update, context: CallbackContext):
     return get_weather_message(city)
 
 
-@return_bot_message
+@return_bot_message()
 def set_location(update: Update, context: CallbackContext):
     try:
         city: str = context.args[0].strip()
