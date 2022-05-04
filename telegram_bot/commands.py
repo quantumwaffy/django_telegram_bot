@@ -3,18 +3,18 @@ import os
 import telegram
 from django.db.models import Max, Min
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import CallbackContext
+from telegram.ext import CallbackContext, ConversationHandler
 
 from django_telegrambot.settings import STATICFILES_DIRS
 
 from . import consts
 from .instance import bot_instance
 from .models import ActualCurrencyInfo, TelegramUser
-from .utils import check_weather, get_weather_message, return_bot_message
+from .utils import check_weather, get_weather_message, render_menu_keyboard, return_bot_message
 
 
 @return_bot_message(parse_mode="html")
-def command_start(update: Update, context: CallbackContext):
+def get_start(update: Update, context: CallbackContext):
     user = update.effective_user
     with open(os.path.join(STATICFILES_DIRS[0], "images", "AnimatedSticker.tgs"), "rb") as f:
         bot_instance.send_sticker(update.effective_message.chat_id, f)
@@ -26,13 +26,25 @@ def command_start(update: Update, context: CallbackContext):
     )
 
 
-@return_bot_message()
+def get_menu(update: Update, context: CallbackContext):
+    render_menu_keyboard(update, context)
+
+
+def return_to_menu(update: Update, context: CallbackContext):
+    render_menu_keyboard(update, context)
+    return ConversationHandler.END
+
+
+def get_city_choice(update: Update, context: CallbackContext):
+    context.bot.send_message(update.effective_message.chat_id, "Input city name:")
+    return 0
+
+
 def get_weather(update: Update, context: CallbackContext):
-    try:
-        city: str = context.args[0].strip()
-    except IndexError:
-        return consts.WeatherResponses.NO_CHOICE.value
-    return get_weather_message(city)
+    city = update.effective_message.text
+    context.bot.send_message(update.effective_message.chat_id, get_weather_message(city))
+    render_menu_keyboard(update, context)
+    return ConversationHandler.END
 
 
 @return_bot_message()

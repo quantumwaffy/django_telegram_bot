@@ -37,3 +37,9 @@ class CityCallbackChoices(TextChoices):
     GOMEL = "city3", "gomel"
     GRODNO = "city4", "grodno"
     MOGILEV = "city5", "mogilev"
+
+
+class MainMenuCallbackChoices(TextChoices):
+    WEATHER = "w", "Check weather"
+    EXCHANGE = "ex", "Check best currency rate"
+    ACCOUNT = "acc", "User settings"

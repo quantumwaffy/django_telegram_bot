@@ -1,13 +1,29 @@
 from django.conf import settings
-from telegram.ext import CallbackQueryHandler, CommandHandler, Dispatcher, Updater
+from telegram.ext import (
+    CallbackQueryHandler,
+    CommandHandler,
+    ConversationHandler,
+    Dispatcher,
+    Filters,
+    MessageHandler,
+    Updater,
+)
 
 from . import commands
 from .instance import bot_instance
 
 
 def setup_dispatcher(dispatcher):
-    dispatcher.add_handler(CommandHandler("start", commands.command_start))
-    dispatcher.add_handler(CommandHandler("weather", commands.get_weather, pass_args=True))
+    dispatcher.add_handler(CommandHandler("start", commands.get_start))
+    dispatcher.add_handler(CommandHandler("menu", commands.get_menu))
+    # dispatcher.add_handler(CommandHandler("weather", commands.get_weather, pass_args=True))
+    dispatcher.add_handler(
+        ConversationHandler(
+            entry_points=[CallbackQueryHandler(commands.get_city_choice, pattern=r"^w$")],
+            states={0: [MessageHandler(Filters.regex(r"^[\D]+$") & (~Filters.command), commands.get_weather)]},
+            fallbacks=[CommandHandler("cancel", commands.return_to_menu)],
+        )
+    )
     dispatcher.add_handler(CommandHandler("save_city", commands.set_location, pass_args=True))
     dispatcher.add_handler(CommandHandler("exchange", commands.command_exchange))
     dispatcher.add_handler(CallbackQueryHandler(commands.city_callback, pattern=r"^city\d$"))
