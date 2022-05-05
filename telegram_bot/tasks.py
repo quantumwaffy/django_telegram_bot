@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup, NavigableString
 from celery import chain
 from django.db import connection
 from django.db.models import QuerySet
+from telegram import error as tg_errors
 
 from django_telegrambot import settings
 from django_telegrambot.celery import app
@@ -86,4 +87,8 @@ def send_morning_weather():
         "telegram_id", "city_location"
     )
     for user_id, city in users_info:
-        bot_instance.send_message(user_id, get_weather_message(city or consts.WeatherResponses.DEFAULT_CITY.value))
+        try:
+            bot_instance.send_message(user_id, get_weather_message(city or consts.WeatherResponses.DEFAULT_CITY.value))
+        except tg_errors.Unauthorized:
+            print(f"{user_id} was blocked bot")
+            continue
