@@ -7,53 +7,52 @@ from telegram.ext import CallbackContext, ConversationHandler
 
 from django_telegrambot.settings import STATICFILES_DIRS
 
-from . import consts
+from . import consts, utils
 from .instance import bot_instance
 from .models import ActualCurrencyInfo, TelegramUser
-from .utils import check_weather, get_weather_message, render_menu_keyboard, return_bot_message
 
 
-@return_bot_message(parse_mode="html")
+@utils.return_bot_message(parse_mode="html")
 def get_start(update: Update, context: CallbackContext):
     user = update.effective_user
     with open(os.path.join(STATICFILES_DIRS[0], "images", "AnimatedSticker.tgs"), "rb") as f:
         bot_instance.send_sticker(update.effective_message.chat_id, f)
     return (
         f"Hi, <b>{user.first_name or user.username or user.last_name or  f'Anonymous_#{user.id}'}</b>!\n"
+        f"Type /menu to open the main menu\n"
         f"For morning notifications about weather you can set your location (default: "
         f"{consts.WeatherResponses.DEFAULT_CITY.value}) like:\n<i>/save_city YOUR_CITY</i>\n"
-        f"For check weather for some city you can send message like:\n<i>/weather YOUR_CITY</i>"
     )
 
 
 def get_menu(update: Update, context: CallbackContext):
-    render_menu_keyboard(update, context)
+    utils.render_menu_keyboard(update, context)
 
 
 def return_to_menu(update: Update, context: CallbackContext):
-    render_menu_keyboard(update, context)
+    utils.render_menu_keyboard(update, context)
     return ConversationHandler.END
 
 
 def get_city_choice(update: Update, context: CallbackContext):
-    context.bot.send_message(update.effective_message.chat_id, "Input city name:")
+    context.bot.send_message(update.effective_message.chat_id, "Input city name or type /cancel to return:")
     return 0
 
 
 def get_weather(update: Update, context: CallbackContext):
     city = update.effective_message.text
-    context.bot.send_message(update.effective_message.chat_id, get_weather_message(city))
-    render_menu_keyboard(update, context)
+    context.bot.send_message(update.effective_message.chat_id, utils.get_weather_message(city))
+    utils.render_menu_keyboard(update, context)
     return ConversationHandler.END
 
 
-@return_bot_message()
+@utils.return_bot_message()
 def set_location(update: Update, context: CallbackContext):
     try:
         city: str = context.args[0].strip()
     except IndexError:
         return consts.WeatherResponses.NO_CHOICE.value
-    if not check_weather(city):
+    if not utils.check_weather(city):
         return consts.WeatherResponses.ERROR.value
     try:
         user = TelegramUser.objects.get(telegram_id=update.effective_user.id)
@@ -70,7 +69,7 @@ def command_exchange(update: Update, context: CallbackContext):
         for callback, label in consts.CityCallbackChoices.choices
     ]
     keyboard = [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
-    update.message.reply_text("Please choose city:", reply_markup=InlineKeyboardMarkup(keyboard))
+    update.effective_message.reply_text("Please choose city:", reply_markup=InlineKeyboardMarkup(keyboard))
 
 
 def city_callback(update: Update, context: CallbackContext):

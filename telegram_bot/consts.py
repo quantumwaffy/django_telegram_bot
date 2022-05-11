@@ -43,3 +43,10 @@ class MainMenuCallbackChoices(TextChoices):
     WEATHER = "w", "Check weather"
     EXCHANGE = "ex", "Check best currency rate"
     ACCOUNT = "acc", "User settings"
+
+
+class UserSettingsCallbackChoices(TextChoices):
+    BEAT_WEATHER = "bw", "Set the weather notification schedule"
+    BEAT_EXCHANGE = "bex", "Set the currency notification schedule"
+    OFF_BEAT_WEATHER = "off_w", "Disable weather notifications"
+    OFF_BEAT_CURRENCY = "off_ex", "Disable currency notifications"
