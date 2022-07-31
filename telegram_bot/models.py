@@ -63,8 +63,8 @@ class TelegramUserSettings(Timestamp):
     telegram_user = models.OneToOneField(
         TelegramUser, related_name="settings", verbose_name="User settings", on_delete=models.CASCADE
     )
-    is_beat_weather = models.BooleanField(verbose_name="Beat sending weather info", default=True)
-    is_beat_currency = models.BooleanField(verbose_name="Beat sending currency info", default=True)
+    beat_weather = models.TimeField(verbose_name="Weather notifications", null=True)
+    beat_currency = models.TimeField(verbose_name="Currency notifications", null=True)
 
     class Meta:
         verbose_name = "User settings"

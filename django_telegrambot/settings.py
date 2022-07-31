@@ -93,7 +93,6 @@ TELEGRAM_TOKEN = env("TELEGRAM_TOKEN")
 
 BROKER_URL = env("BROKER_URL")
 
-CURRENCY_CACHE_PATH = os.path.join(BASE_DIR, "CACHE_CURRENCY")
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 

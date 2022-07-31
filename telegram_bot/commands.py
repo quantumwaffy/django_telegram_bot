@@ -2,12 +2,15 @@ import os
 
 import telegram
 from django.db.models import Max, Min
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import Update
 from telegram.ext import CallbackContext, ConversationHandler
 
+from core import command_handlers
+from core import consts as core_consts
+from core import utils as core_utils
 from django_telegrambot.settings import STATICFILES_DIRS
 
-from . import consts, utils
+from . import consts, forms, utils
 from .instance import bot_instance
 from .models import ActualCurrencyInfo, TelegramUser
 
@@ -35,7 +38,7 @@ def return_to_menu(update: Update, context: CallbackContext):
 
 
 def get_city_choice(update: Update, context: CallbackContext):
-    context.bot.send_message(update.effective_message.chat_id, "Input city name or type /cancel to return:")
+    context.bot.send_message(update.effective_message.chat_id, f"Input city name {core_consts.RETURN_MESSAGE_PART}")
     return 0
 
 
@@ -60,34 +63,29 @@ def set_location(update: Update, context: CallbackContext):
         return consts.WeatherResponses.ERROR.value
     user.city_location = city
     user.save()
-    return consts.BaseMessageResponses.SUCCESS.value
+    return core_consts.BaseMessageResponses.SUCCESS.value
 
 
 def command_exchange(update: Update, context: CallbackContext):
-    buttons = [
-        InlineKeyboardButton(label.capitalize(), callback_data=callback)
-        for callback, label in consts.CityCallbackChoices.choices
-    ]
-    keyboard = [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
-    update.effective_message.reply_text("Please choose city:", reply_markup=InlineKeyboardMarkup(keyboard))
+    update.effective_message.reply_text(
+        "Please choose city:",
+        reply_markup=core_utils.CityKeyboardMarkupRender(3, consts.CityCallbackChoices.choices).get_markup(),
+    )
 
 
 def city_callback(update: Update, context: CallbackContext):
-    buttons = [
-        InlineKeyboardButton(label, callback_data=f"{update.callback_query.data}|{next_callback}")
-        for next_callback, label in consts.CurrencyCallbackChoices.choices
-    ]
-    keyboard = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
     context.bot.edit_message_text(
         text="Please choose info type:",
         chat_id=update.effective_user.id,
         message_id=update.callback_query.message.message_id,
-        reply_markup=InlineKeyboardMarkup(keyboard),
+        reply_markup=core_utils.CurrencyKeyboardMarkupRender(
+            update, 2, consts.CurrencyCallbackChoices.choices
+        ).get_markup(),
         parse_mode=telegram.ParseMode.MARKDOWN,
     )
 
 
-class CurrencyRateProcessor:
+class CurrencyRateProcessor(command_handlers.BaseHandler):
     update: Update
     context: CallbackContext
     model: ActualCurrencyInfo = ActualCurrencyInfo
@@ -96,13 +94,13 @@ class CurrencyRateProcessor:
     filter_field: str
 
     def __call__(self, *args, **kwargs):
-        self.update, self.context = args
-        callback_city, callback_operation = self.update.callback_query.data.split("|")
+        super().__call__(*args, **kwargs)
+        callback_city, callback_operation = self._update.callback_query.data.split("|")
         self.city = dict(consts.CityCallbackChoices.choices).get(callback_city)
         self.info_type = dict(consts.CurrencyCallbackChoices.choices).get(callback_operation)
         self.filter_field = consts.CurrencyCallbackChoices.value_name_dict.get(callback_operation)
-        return self.context.bot.send_message(
-            self.update.effective_message.chat_id, self._make_response_message(), parse_mode="html"
+        return self._context.bot.send_message(
+            self._update.effective_message.chat_id, self._make_response_message(), parse_mode="html"
         )
 
     def _get_object_list(self):
@@ -127,3 +125,30 @@ class CurrencyRateProcessor:
         for bank, exchange_value in self._get_object_list():
             message += f"{bank}: <i>{exchange_value}</i>\n"
         return message.strip("\n")
+
+
+class CurrencyBeatScheduleHandler(command_handlers.BeatScheduleHandler):
+    _form_class = forms.CurrencyBeatUserSettingsForm
+
+
+class WeatherBeatScheduleHandler(command_handlers.BeatScheduleHandler):
+    _form_class = forms.WeatherBeatUserSettingsForm
+
+
+class CurrencyDisableBeatScheduleHandler(command_handlers.DisableBeatScheduleHandler):
+    _schedule_field = "beat_currency"
+
+
+class WeatherDisableBeatScheduleHandler(command_handlers.DisableBeatScheduleHandler):
+    _schedule_field = "beat_weather"
+
+
+def user_settings_callback(update: Update, context: CallbackContext):
+    context.bot.edit_message_text(
+        text="Please choose info type:",
+        chat_id=update.effective_user.id,
+        message_id=update.callback_query.message.message_id,
+        reply_markup=core_utils.BaseKeyboardMarkupRender(2, consts.UserSettingsCallbackChoices.choices).get_markup(),
+        parse_mode=telegram.ParseMode.MARKDOWN,
+    )
+    return 0

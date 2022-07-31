@@ -2,10 +2,7 @@ from enum import Enum
 
 from django.db.models import TextChoices
 
-
-class BaseMessageResponses(Enum):
-    SUCCESS = "Successfully applied"
-    ERROR = "An error occurred"
+SOURCE = "https://myfin.by/currency-old/"
 
 
 class WeatherResponses(Enum):
@@ -46,7 +43,14 @@ class MainMenuCallbackChoices(TextChoices):
 
 
 class UserSettingsCallbackChoices(TextChoices):
-    BEAT_WEATHER = "bw", "Set the weather notification schedule"
-    BEAT_EXCHANGE = "bex", "Set the currency notification schedule"
-    OFF_BEAT_WEATHER = "off_w", "Disable weather notifications"
-    OFF_BEAT_CURRENCY = "off_ex", "Disable currency notifications"
+    BEAT_WEATHER = "bw", "Weather schedule"
+    BEAT_EXCHANGE = "bex", "Currency schedule"
+    OFF_BEAT_WEATHER = "off_w", "Disable weather"
+    OFF_BEAT_CURRENCY = "off_ex", "Disable currency"
+
+
+WEATHER_MINUTE_STEP_BEAT: int = 30
+CURRENCY_MINUTE_STEP_BEAT: int = 30
+
+# BEAT CONVERSATION STATES
+INPUT_TIME, SET_TIME = range(2)

@@ -1,8 +1,10 @@
 import functools
 
 from pyowm.commons.exceptions import APIResponseError
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, User
+from telegram import Update, User
 from telegram.ext import CallbackContext
+
+from core import utils as core_utils
 
 from . import consts, models
 from .instance import bot_instance, owm_instance
@@ -64,9 +66,7 @@ def get_weather_message(city: str) -> str:
 
 
 def render_menu_keyboard(update: Update, context: CallbackContext):
-    buttons = [
-        InlineKeyboardButton(label, callback_data=callback)
-        for callback, label in consts.MainMenuCallbackChoices.choices
-    ]
-    keyboard = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
-    update.message.reply_text("Please make a choice:", reply_markup=InlineKeyboardMarkup(keyboard))
+    update.message.reply_text(
+        "Please make a choice:",
+        reply_markup=core_utils.BaseKeyboardMarkupRender(2, consts.MainMenuCallbackChoices.choices).get_markup(),
+    )

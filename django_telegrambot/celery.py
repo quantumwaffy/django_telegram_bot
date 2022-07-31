@@ -21,7 +21,7 @@ app.conf.update(BROKER_URL=settings.BROKER_URL)
 app.conf.beat_schedule = {
     "morning_weather": {"task": "telegram_bot.tasks.send_morning_weather", "schedule": crontab(hour=7, minute=15)},
     "upload_currencies": {
-        "task": "telegram_bot.tasks.updating_and_parsing_data",
+        "task": "telegram_bot.tasks.update_currency_data",
         "schedule": crontab(minute=0, hour="*/2"),
     },
 }
